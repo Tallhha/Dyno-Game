@@ -1,0 +1,80 @@
+.MODEL small, stdcall
+.STACK 100h
+.386
+exit EQU <.EXIT>
+start EQU <.STARTUP>
+;============================================================
+.data
+	newline db 10,13,'$'
+	rowno db 20
+	colno db 25
+	regcx dw 200
+	count db 0
+	regdx dw 160
+	blreg db 0
+;============================================================	
+.code
+	MAIN PROC
+	start
+		mov ah,0
+		mov al,12h
+		int 10h
+	again:
+		mov ax,03
+		int 33h
+
+		mov blreg,bl
+		cmp regdx,dx
+		je next1
+		cmp regdx,dx
+		jb next
+		sub rowno,1
+		jmp next1
+	next:
+		add rowno,1
+	next1:
+		cmp regcx,cx
+		je out1
+		cmp regcx,cx
+		jb lblsub
+		sub colno,1
+		jmp out1
+	lblsub:
+		add colno,1
+	out1:
+		mov regdx,dx
+		mov blreg,bl
+		mov regcx,cx
+		call drawchar
+		mov cx,0h
+		mov dx,0ffffh
+		mov ah,86h
+		int 15h
+
+		mov ah,0
+		mov al,12h
+		int 10h
+		
+		mov ax,01
+		int 33h
+
+		cmp blreg,1
+		jne again
+	exit
+	MAIN ENDP
+;============================================================	
+	DRAWCHAR PROC 
+		mov dh,rowno
+		mov dl,colno
+		mov ah,02
+		int 10h
+
+		mov ah,09
+		mov cx,1
+		mov al,'H'
+		mov bl,12h
+		mov bh,0
+		int 10h  
+	RET
+	DRAWCHAR ENDP
+end

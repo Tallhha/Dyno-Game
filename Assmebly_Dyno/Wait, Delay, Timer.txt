@@ -1,0 +1,47 @@
+.MODEL small, stdcall
+.STACK 100h
+.386
+exit EQU <.EXIT>
+start EQU <.STARTUP>
+;============================================================
+.data
+;============================================================
+.code
+	MAIN PROC	
+	;To select mode
+		mov ah,0
+		mov al,13h
+		int 10h
+
+		mov si,20        ;starting column
+		mov di,20        ;starting row
+	outer:
+		cmp di,25        ;20-180 row
+		je away
+		mov si,20
+	here:
+		cmp si,300       ;20-300 column
+		je quit
+		inc si
+		mov ah,0ch       ;interrupt number
+		mov al,03        ;color
+		mov cx,si        ;column number
+		mov dx,di        ;row number
+		int 10h
+		
+		jmp here
+	quit:
+	
+	;CX:DX = Number of microseconds to elapse
+		MOV CX, 0FH
+		MOV DX, 4240H
+		MOV AH, 86H      ;BIOS Wait/Delay function
+		INT 15H
+
+		inc di
+		jmp outer
+	away:
+
+	exit 
+	MAIN ENDP
+end
